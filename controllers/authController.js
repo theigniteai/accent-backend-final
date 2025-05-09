@@ -6,42 +6,51 @@ import jwt from "jsonwebtoken";
 export const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: "User already exists" });
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
     }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    await newUser.save();
-
-    // Optionally create token
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET || "secret123", {
+    const hash = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hash });
+    // Return a token right away if you like:
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-
     res.status(201).json({
       success: true,
-      message: "Signup successful",
+      message: "User created",
       token,
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-      },
+      user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (err) {
-    console.error("Signup Error:", err.message);
+    console.error("Signup error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    res.json({ success: true, token });
+  } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
