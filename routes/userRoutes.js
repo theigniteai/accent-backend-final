@@ -1,11 +1,9 @@
-// GET /profile, PUT /settings
-import express from "express";
-import { getProfile, updateSettings } from "../controllers/userController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { Router } from "express";
+import { getProfile, updateProfile } from "../controllers/userController.js";
 
-const router = express.Router();
+const router = Router();
 
-router.get("/profile", protect, getProfile);
-router.put("/settings", protect, updateSettings);
+router.get("/me",    getProfile);
+router.put("/me",    updateProfile);
 
 export default router;
