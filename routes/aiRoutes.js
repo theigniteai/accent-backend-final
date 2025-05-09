@@ -11,3 +11,4 @@ const router = express.Router();
 router.post("/respond", protect, aiRespond);
 
 export default router;
+
