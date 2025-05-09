@@ -1,13 +1,10 @@
-// user schema with assistantEnabled, voiceId
+// models/User.js
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true },
-  password: String,
-  assistantEnabled: { type: Boolean, default: false },
-  voiceId: String,
-  subscription: { type: String, default: "Free" }
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
 }, {
   timestamps: true
 });
