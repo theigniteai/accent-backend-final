@@ -1,15 +1,17 @@
-// get profile, update settings
 export const getProfile = (req, res) => {
+  // stubbed user info
   res.json({
-    name: "Admin",
-    email: "admin@accentshift.ai",
-    assistantEnabled: true,
-    voiceId: "elevenlabs-id",
-    subscription: "Pro"
+    id: "user123",
+    name: "John Doe",
+    email: "john@example.com",
+    subscription: "Pro Plan",
   });
 };
 
-export const updateSettings = (req, res) => {
-  // Save assistantEnabled, voiceId, password
-  res.json({ message: "Settings updated (demo)" });
+export const updateProfile = (req, res) => {
+  // accept any body, echo back
+  res.json({
+    success: true,
+    updated: req.body
+  });
 };
