@@ -1,5 +1,5 @@
 // protect middleware
-export const protect = (req, res, next) => {
-  // For now, allow all (demo)
+export default function auth(req, res, next) {
+  // you can read req.headers.authorization if you want
   next();
-};
+}
