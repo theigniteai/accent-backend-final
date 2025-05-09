@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
+     "accent-relay": "node accentRelay.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
