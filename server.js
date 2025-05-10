@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
-import { initWebSocket } from "./websocket.js"; // <- real-time accent changer handler
+import { initWebSocket } from "./websocket.js";
 
-// route imports
+// Route imports
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import aiRoutes from "./routes/ai.js";
@@ -12,28 +12,24 @@ import callRoutes from "./routes/calls.js";
 
 dotenv.config();
 const app = express();
-const server = http.createServer(app); // create HTTP server for WebSocket use
+const server = http.createServer(app); // For WebSocket
 
-// Middleware
-app.use(cors({ origin: "*", methods: ["GET", "POST"], credentials: true }));
+app.use(cors());
 app.use(express.json());
 
-// Health Check
-app.get("/", (req, res) => {
-  res.send("🟢 AccentShift API is running (WebSocket + REST)");
-});
+// Health check
+app.get("/", (req, res) => res.send("🟢 AccentShift API is running"));
 
-// Routes
+// Mount routers
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/calls", callRoutes);
 
-// WebSocket Setup
-initWebSocket(server); // initializes WebSocket server on same HTTP port
+// Initialize WebSocket
+initWebSocket(server);
 
-// Start server
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () =>
-  console.log(`✅ AccentShift backend running on port ${PORT} (WebSocket + REST)`)
+  console.log(`✅ API + WebSocket server listening on port ${PORT}`)
 );
