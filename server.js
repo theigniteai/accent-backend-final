@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import http from "http";
 import { initWebSocket } from "./websocket.js";
 
+
 // Route imports
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
