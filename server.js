@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
-import { initWebSocket } from "/websocket.js"; // <- real-time accent changer handler
+import { initWebSocket } from "./websocket.js"; // <- real-time accent changer handler
 
 // route imports
 import authRoutes from "./routes/auth.js";
