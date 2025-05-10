@@ -9,6 +9,8 @@ import aiRoutes   from "./routes/ai.js";
 import callRoutes from "./routes/calls.js";
 
 import { initWebSocket } from "./websocket.js"; // ✅ IMPORTANT
+import { ElevenLabsClient } from "elevenlabs";
+
 
 dotenv.config();
 const app = express();
