@@ -1,79 +1,53 @@
+import { WebSocketServer } from 'ws';
+import { Readable } from 'stream';
+import { ElevenLabsClient } from 'elevenlabs';
+import OpenAI from 'openai';
 
-import { WebSocketServer } from "ws";
-import { v4 as uuidv4 } from "uuid";
-import { ElevenLabsClient } from "elevenlabs";
-import dotenv from "dotenv";
+const elevenlabs = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-dotenv.config();
-
-const elevenlabs = new ElevenLabsClient({
-  apiKey: process.env.ELEVEN_API_KEY,
-});
-
-export const initWebSocket = (server) => {
+export function initWebSocket(server) {
   const wss = new WebSocketServer({ server });
-  console.log("✅ WebSocket server initialized");
 
-  wss.on("connection", (ws) => {
-    const clientId = uuidv4();
-    console.log("🔗 Client connected:", clientId);
+  wss.on('connection', (socket) => {
+    console.log('🔌 WebSocket connected');
 
-    let userAccent = "us";
     let audioChunks = [];
 
-    ws.on("message", async (message, isBinary) => {
-      try {
-        if (!isBinary) {
-          const json = JSON.parse(message.toString());
-          if (json.type === "start") {
-            userAccent = json.accent || "us";
-            audioChunks = [];
-            return;
-          }
-          if (json.type === "stop") {
-            const voiceId = getVoiceId(userAccent);
-            const response = await elevenlabs.textToSpeech.convert({
-              voiceId,
-              modelId: "eleven_multilingual_v2",
-              text: "This is your real-time accent response.",
-              voiceSettings: {
-                stability: 0.4,
-                similarityBoost: 0.8,
-              },
-            });
+    socket.on('message', async (message) => {
+      if (message === 'stop') {
+        console.log('🛑 Received stop signal');
 
-            const buffer = Buffer.from(await response.arrayBuffer());
-            ws.send(buffer);
-            return;
-          }
+        const audioBuffer = Buffer.concat(audioChunks);
+        const audioStream = Readable.from(audioBuffer);
+
+        try {
+          const transcript = await openai.audio.transcriptions.create({
+            file: audioStream,
+            model: "whisper-1"
+          });
+
+          const text = transcript.text;
+          console.log("Transcribed Text:", text);
+
+          const tts = await elevenlabs.textToSpeech.convert({
+            voiceId: 'EXAVITQu4vr4xnSDxMaL', // Sample voice
+            text
+          });
+
+          const audio = Buffer.from(await tts.arrayBuffer());
+          socket.send(audio);
+
+        } catch (error) {
+          console.error('Error during speech processing:', error);
         }
 
-        // Binary audio data
+        audioChunks = [];
+      } else {
         audioChunks.push(message);
-      } catch (error) {
-        console.error("❌ WebSocket Error:", error.message);
-        ws.send(JSON.stringify({ error: error.message }));
       }
     });
 
-    ws.on("close", () => {
-      console.log("❌ Client disconnected:", clientId);
-    });
+    socket.on('close', () => console.log('❌ WebSocket closed'));
   });
-};
-
-function getVoiceId(accent) {
-  switch (accent) {
-    case "us":
-      return "21m00Tcm4TlvDq8ikWAM";
-    case "uk":
-      return "TxGEqnHWrfWFTfGW9XjX";
-    case "au":
-    case "aus":
-      return "EXAVITQu4vr4xnSDxMaL";
-    case "in":
-      return "mfFjJ73L9YOJqHiA1ogq"; // hypothetical Indian accent
-    default:
-      return "21m00Tcm4TlvDq8ikWAM";
-  }
 }
