@@ -18,7 +18,8 @@
     "nodemailer": "^6.9.8",
     "uuid": "^9.0.1",
  "ws": "^8.13.0",
-  "elevenlabs": "^1.2.0"
+  "elevenlabs": "^1.2.0",
+     "openai": "^4.0.0"
 
   },
   "engines": {
