@@ -17,7 +17,9 @@
     "mongoose": "^7.6.1",
     "nodemailer": "^6.9.8",
     "uuid": "^9.0.1",
-    "ws": "^8.13.0"
+ "ws": "^8.13.0",
+  "elevenlabs": "^1.2.0"
+
   },
   "engines": {
     "node": ">=18.x"
