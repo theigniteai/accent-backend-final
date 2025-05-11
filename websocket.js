@@ -36,6 +36,8 @@ export function initWebSocket(server) {
           });
 
           const audio = Buffer.from(await tts.arrayBuffer());
+          console.log("✅ Sending audio buffer of size:", audio.length);
+
           socket.send(audio);
 
         } catch (error) {
