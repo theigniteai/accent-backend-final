@@ -33,5 +33,4 @@ const server = app.listen(PORT, () =>
   console.log(`✅ AccentShift backend running on port ${PORT}`)
 );
 
-// ✅ INITIATE SOCKET
-initWebSocket(server); 
+
