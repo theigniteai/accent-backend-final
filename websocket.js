@@ -19,6 +19,8 @@ export function initWebSocket(server) {
         console.log('🛑 Received stop signal');
 
         const audioBuffer = Buffer.concat(audioChunks);
+        console.log("📦 Audio buffer received from frontend:", audioBuffer.length);
+
         const audioStream = Readable.from(audioBuffer);
 
         try {
@@ -28,20 +30,26 @@ export function initWebSocket(server) {
           });
 
           const text = transcript.text;
-          console.log("Transcribed Text:", text);
+          console.log("📝 Transcribed Text:", text);
 
           const tts = await elevenlabs.textToSpeech.convert({
-            voiceId: 'EXAVITQu4vr4xnSDxMaL', // Sample voice
-            text
+            voiceId: 'EXAVITQu4vr4xnSDxMaL',
+            modelId: "eleven_multilingual_v2",
+            text,
+            voiceSettings: {
+              stability: 0.4,
+              similarityBoost: 0.8
+            }
           });
 
-          const audio = Buffer.from(await tts.arrayBuffer());
+          const arrayBuffer = await tts.arrayBuffer();
+          const audio = Buffer.from(arrayBuffer);
           console.log("✅ Sending audio buffer of size:", audio.length);
 
           socket.send(audio);
-
         } catch (error) {
-          console.error('Error during speech processing:', error);
+          console.error('❌ Error during speech processing:', error.message);
+          socket.send(JSON.stringify({ error: error.message }));
         }
 
         audioChunks = [];
